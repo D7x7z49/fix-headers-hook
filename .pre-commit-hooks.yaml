@@ -1,0 +1,16 @@
+- id: fix-headers
+  name: Fix file headers
+  description: Adds/updates file headers with relative path comments
+  entry: fix-headers
+  language: python
+  types: [file]
+  exclude_types: []
+  files: "\\.(py|sh|bash|zsh|fish|ps1|pl|rb|php|yaml|yml|toml|ini|cfg|conf|env|json5|hcl|tf|sql|lua)$"
+  pass_filenames: true
+  always_run: false
+  require_serial: false
+  minimum_pre_commit_version: "2.0.0"
+  additional_dependencies: []
+  args: []
+  verbose: false
+  stages: [pre-commit]
