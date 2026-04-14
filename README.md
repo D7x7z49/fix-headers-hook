@@ -8,8 +8,8 @@ A pre-commit hook to add/update file headers with relative path comments.
 - Supports multiple file types (Python, shell scripts, config files, etc.)
 - Respects `.gitignore` patterns
 - Detects shebang lines and preserves them
-- Works as both a standalone CLI tool and a pre-commit hook
 - Dry-run mode for previewing changes
+- Seamless integration with pre-commit framework
 
 ## Supported File Types
 
@@ -32,7 +32,7 @@ Add to your `.pre-commit-config.yaml`:
 
 ```yaml
 repos:
-  - repo: https://github.com/yourusername/fix-headers-hook
+  - repo: https://github.com/D7x7z49/fix-headers-hook
     rev: v0.1.0
     hooks:
       - id: fix-headers
@@ -42,7 +42,27 @@ repos:
 
 ### As a pre-commit hook
 
-The hook will automatically run on staged files during `git commit`.
+The hook automatically processes staged files during `git commit`. It adds or updates file headers with the relative path from the project root.
+
+1. Add to your `.pre-commit-config.yaml` as shown in the Installation section
+2. Install the hook: `pre-commit install`
+3. Commit files normally: `git add file.py && git commit -m "message"`
+
+The hook will:
+- Process Python files, shell scripts, configuration files, and more
+- Insert headers after shebang lines when present
+- Skip files already containing correct headers
+- Respect your `.gitignore` patterns
+- Show a summary of changes made
+
+Example transformation:
+- Before: Plain Python file without header
+- After: File with `# src/module/file.py` comment on first line (or second line if shebang present)
+
+To preview changes without modifying files, use:
+```bash
+pre-commit run fix-headers --all-files --hook-stage pre-commit
+```
 
 ## Development
 
@@ -50,7 +70,7 @@ The hook will automatically run on staged files during `git commit`.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/fix-headers-hook
+git clone https://github.com/D7x7z49/fix-headers-hook
 cd fix-headers-hook
 
 # Create virtual environment and install dependencies
