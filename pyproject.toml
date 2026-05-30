@@ -1,7 +1,7 @@
 # pyproject.toml
 [project]
 name = "fix-headers-hook"
-version = "0.1.0"
+version = "0.2.0"
 description = "pre-commit hook to add/update file headers with relative path comments"
 readme = "README.md"
 requires-python = ">=3.12"
