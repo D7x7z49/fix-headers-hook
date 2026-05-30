@@ -1,3 +1,4 @@
+# pyproject.toml
 [project]
 name = "fix-headers-hook"
 version = "0.1.0"
@@ -12,7 +13,6 @@ license = {text = "MIT"}
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -22,14 +22,19 @@ classifiers = [
 
 [project.optional-dependencies]
 dev = [
-    "pre-commit>=3.0.0",
+    "pre-commit>=4.0.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
     "ruff>=0.6.0",
     "mypy>=1.10.0",
-    "pytest>=8.0.0",
 ]
 
 [project.scripts]
-fix-headers = "fix_headers.cli:main"
+fix-headers = "fix_headers_hook.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.10.11,<0.11.0"]
+build-backend = "uv_build"
 
 [tool.ruff]
 target-version = "py312"

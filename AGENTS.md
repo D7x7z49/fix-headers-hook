@@ -1,26 +1,41 @@
-# AGENTS.md - fix-headers-hook
+<!-- AGENTS.md -->
+<!-- Project conventions and guidelines for fix-headers-hook -->
 
-This project is a Python pre-commit hook. It adds or updates file header comments containing relative path information. The tool uses `uv` as its package manager. A `Makefile` supplies a convenient command scaffold for common development tasks.
+PROJECT IDENTITY
 
-Before executing any Python command, prefix it with `uv run`. This ensures the correct virtual environment is used. Alternatively, activate the environment first with `source .venv/bin/activate`.
+- A Python pre-commit hook that adds or updates file header comments with relative path information.
+- Distributed as a pre-commit hook via `.pre-commit-hooks.yaml`; consumed by the pre-commit framework.
+- The project dogfoods its own hook via `.pre-commit-config.yaml`.
 
-For a quick test of the hook on the current directory:
+TOOL STACK
 
-- Run `uv run python -m fix_headers . --dry-run`.
+- Package manager: `uv` — all Python commands run through `uv run` or an activated `.venv`.
+- Build backend: `uv_build`.
+- Task runner: `Makefile` — the authoritative entry point for common dev workflows.
+- Linter and formatter: `ruff`.
+- Type checker: `mypy`.
+- Test runner: `pytest`.
 
-The `Makefile` orchestrates most daily workflows. Use these targets for setup and quality checks:
+PROJECT FILES
 
-- `make install` — Creates the virtual environment and installs dependencies via `uv`.
-- `make lint` — Checks code style with `ruff`.
-- `make typecheck` — Verifies type hints with `mypy`.
-- `make format` — Automatically formats the source code.
-- `make all` — Runs linting, type checking, and the test placeholder in sequence.
-- `make self-test` — Demonstrates how the hook behaves on this project in dry-run mode.
+- `pyproject.toml` — project metadata, dependencies (dev extras), and tool configs.
+- `Makefile` — task definitions (`install`, `lint`, `format`, `test`, `hook-test`, etc.).
+- `.pre-commit-hooks.yaml` — hook definition for downstream consumers.
+- `.pre-commit-config.yaml` — local pre-commit setup for self-validation.
+- `.python-version` — pinned Python version for development.
 
-When examining or editing the `Makefile`, note that the `PYTHON` variable should refer to `.venv/bin/python`. Alternatively, commands may rely directly on `uv run`.
+SOURCE CONVENTIONS
 
-The tool's entry point is `fix_headers.cli:main`. After installation, it is invoked as `fix-headers`.
+- Source code lives under `src/fix_headers_hook/`.
+- Tests live under `tests/`.
+- Write code comments and commit messages in english.
+- Use `uv run` prefix for all Python commands unless the venv is activated.
+- Run `make hook-test` before committing to ensure all pre-commit hooks pass.
 
-This package is designed as a pre-commit hook, not a standalone application. The hook definition resides in `.pre-commit-hooks.yaml`. The self-test configuration lives in `.pre-commit-config.yaml` with local dry-run settings.
+TESTING
 
-A dedicated tests directory does not yet exist. Consequently, the `make test` target will report "No tests found". The minimum required Python version is 3.12.
+- Test philosophy: see `tests/README.md`.
+- Run tests via `make test` or `uv run pytest`.
+- Coverage reports available through `make test-cov`.
+
+---

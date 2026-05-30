@@ -1,34 +1,44 @@
+<!-- README.md -->
 # fix-headers-hook
 
-A pre-commit hook to add/update file headers with relative path comments.
+A pre-commit hook that adds or updates file header comments with relative path information.
 
 ## Features
 
-- Adds or updates file headers with relative path comments
-- Supports multiple file types (Python, shell scripts, config files, etc.)
-- Respects `.gitignore` patterns
-- Detects shebang lines and preserves them
-- Dry-run mode for previewing changes
-- Seamless integration with pre-commit framework
+- Adds or updates file headers automatically on `git commit`
+- Supports 50+ file types across 6 comment syntax families
+- Respects `.gitignore` patterns and common ignore directories
+- Preserves shebang lines
+- Dry-run mode for preview
+- Idempotent — safe to run repeatedly
 
 ## Supported File Types
 
-- Python (.py)
-- Shell scripts (.sh, .bash, .zsh, .fish, .ps1)
-- Perl (.pl)
-- Ruby (.rb)
-- PHP (.php)
-- Configuration files (.yaml, .yml, .toml, .ini, .cfg, .conf, .env, .json5, .hcl)
-- Terraform (.tf)
-- SQL (.sql)
-- Lua (.lua)
-- Special files: Makefile, Dockerfile
+Six comment syntax families across 50+ extensions.
+
+Hash-style (`# {rel}`):
+`.py` `.sh` `.bash` `.zsh` `.yaml` `.yml` `.toml` `.ini` `.cfg` `.rb` `.php` `.pl` `.r` `.tf` `.hcl` `.env` `Makefile` `Dockerfile` and more.
+
+Slash-style (`// {rel}`):
+`.js` `.ts` `.jsx` `.tsx` `.go` `.rs` `.swift` `.cs` `.java` `.kt` `.scala` `.c` `.cpp` `.h` `.dart` `.proto` and more.
+
+Dash-style (`-- {rel}`):
+`.sql` `.lua` `.hs` `.elm` `.vhd` `.vhdl` `.ada` and more.
+
+HTML-style (`<!-- {rel} -->`):
+`.html` `.xml` `.svg` `.md` `.markdown` and more.
+
+Block-style (`/* {rel} */`):
+`.css` `.scss` `.sass` `.less` and more.
+
+Semicolon-style (`; {rel}`):
+`.asm` `.s` `.nasm` and more.
 
 ## Installation
 
-### As a pre-commit hook
+Add to your `.pre-commit-config.yaml`, then run `pre-commit install`.
 
-Add to your `.pre-commit-config.yaml`:
+Apply to all supported files in the repository:
 
 ```yaml
 repos:
@@ -38,89 +48,77 @@ repos:
       - id: fix-headers
 ```
 
+Limit to specific directories with a `files` pattern:
+
+```yaml
+repos:
+  - repo: https://github.com/D7x7z49/fix-headers-hook
+    rev: v0.1.0
+    hooks:
+      - id: fix-headers
+        files: ^(src|tests|scripts)/
+```
+
+Exclude generated or vendored paths:
+
+```yaml
+repos:
+  - repo: https://github.com/D7x7z49/fix-headers-hook
+    rev: v0.1.0
+    hooks:
+      - id: fix-headers
+        exclude: ^(vendor|generated|\.venv)/
+```
+
+## Safety and Scoping
+
+- The hook only touches files whose extensions it recognizes. Unsupported files are silently skipped.
+- Directories in `.gitignore` and common ignore paths (`.venv`, `node_modules`, `build`, `dist` ...) are never touched.
+- Shebang lines are preserved.
+- Run `pre-commit run fix-headers --all-files` to preview what would change before committing.
+- If unsure, start with a narrow `files` pattern and widen gradually.
+
 ## Usage
 
-### As a pre-commit hook
+Once installed, the hook runs automatically on staged files during `git commit`.
 
-The hook automatically processes staged files during `git commit`. It adds or updates file headers with the relative path from the project root.
-
-1. Add to your `.pre-commit-config.yaml` as shown in the Installation section
-2. Install the hook: `pre-commit install`
-3. Commit files normally: `git add file.py && git commit -m "message"`
-
-The hook will:
-- Process Python files, shell scripts, configuration files, and more
-- Insert headers after shebang lines when present
-- Skip files already containing correct headers
-- Respect your `.gitignore` patterns
-- Show a summary of changes made
-
-Example transformation:
-- Before: Plain Python file without header
-- After: File with `# src/module/file.py` comment on first line (or second line if shebang present)
-
-To preview changes without modifying files, use:
-```bash
-pre-commit run fix-headers --all-files --hook-stage pre-commit
-```
-
-## Development
-
-### Setup
+To preview changes without committing:
 
 ```bash
-# Clone the repository
-git clone https://github.com/D7x7z49/fix-headers-hook
-cd fix-headers-hook
-
-# Create virtual environment and install dependencies
-make install
-
-# Install in development mode
-make dev
+pre-commit run fix-headers --all-files
 ```
 
-### Available Commands
+To run the tool directly (outside pre-commit):
 
 ```bash
-# Run all checks (lint, typecheck, test)
-make all
-
-# Run code linting
-make lint
-
-# Run type checking
-make typecheck
-
-# Format code
-make format
-
-# Run tests
-make test
-
-# Clean build artifacts
-make clean
-
-# Self-test: run fix-headers on this project
-make self-test
+fix-headers src/ --dry-run    # preview
+fix-headers src/              # apply
 ```
-
-## Configuration
-
-The tool automatically:
-- Detects project root by looking for `.git` or `pyproject.toml`
-- Reads `.gitignore` patterns
-- Ignores common directories (`.git`, `node_modules`, `.venv`, etc.)
 
 ## How It Works
 
-1. For each supported file, the tool calculates its relative path from the project root
+1. For each supported file, the tool computes its relative path from the project root
 2. If the file has a shebang line, the header is inserted after it
-3. If the file already has a header in the expected format, it's skipped
+3. If the file already has the correct header, it is skipped
 4. Otherwise, the header is added or updated
 
-Example header: `# src/fix_headers/core.py`
+Example: a file at `src/utils/helper.py` gets the header `# src/utils/helper.py`.
+
+## Development
+
+See `make help` for all available targets.
+
+Quick start:
+
+```bash
+make install          # sync dependencies
+make all              # lint + typecheck + test
+make hook-test        # run all pre-commit hooks on all files
+make self-test        # dry-run fix-headers on own source
+```
+
+Development dependencies are declared in `pyproject.toml` under the `dev` extras group. Python version is pinned in `.python-version`.
 
 ## License
 
-MIT License - see LICENSE file for details.
+MIT License — see `LICENSE`.

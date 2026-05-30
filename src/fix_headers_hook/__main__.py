@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# src/fix_headers_hook/__main__.py
+# src/fix_headers/__main__.py
 """
 Entry point for fix_headers package.
 

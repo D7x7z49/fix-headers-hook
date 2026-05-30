@@ -1,86 +1,50 @@
-# Makefile for fix-headers-hook project
-#
-# Prerequisites:
-#   - Install uv (recommended via pipx: pipx install uv)
-#   - Create a blank .env file to ensure a clean environment: touch .env
-#
-# All Python commands are executed through 'uv run' to maintain proper isolation.
+# Makefile for fix-headers-hook
 
-# Configuration
-UV := uv
+.PHONY: help install lint typecheck format test test-cov clean all dev \
+        hook-test hook-install self-test self-test-apply
 
-# Default target
-.PHONY: help
-help:
-	@echo "Available targets:"
-	@echo "  install     - Install development dependencies (uv sync)"
-	@echo "  lint        - Run code linting (ruff)"
-	@echo "  typecheck   - Run type checking (mypy)"
-	@echo "  test        - Run tests (pytest)"
-	@echo "  format      - Format code (ruff format)"
-	@echo "  clean       - Clean build artifacts"
-	@echo "  all         - Run lint, typecheck, and test"
-	@echo "  dev         - Install package in editable mode"
-	@echo "  self-test   - Run fix-headers on this project (dry-run)"
+help:  ## show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
+		| awk 'BEGIN {FS = ":.*?## "}; {printf "  %-16s %s\n", $$1, $$2}'
 
-# Install dependencies using uv sync
-.PHONY: install
-install:
-	@test -f .env || touch .env
-	$(UV) sync
-	@echo "Dependencies installed"
+install:  ## install dependencies with uv
+	uv sync --extra dev
 
-# Run code linting
-.PHONY: lint
-lint: install
-	$(UV) run ruff check src/
-	@echo "Linting completed"
+lint:  ## run ruff linter
+	uv run ruff check src/ tests/
 
-# Run type checking
-.PHONY: typecheck
-typecheck: install
-	$(UV) run mypy src/
-	@echo "Type checking completed"
+typecheck:  ## run mypy
+	uv run mypy src/
 
-# Run tests
-.PHONY: test
-test: install
-	$(UV) run pytest -v tests/ || echo "No tests found"
-	@echo "Testing completed"
+format:  ## format code with ruff
+	uv run ruff format src/ tests/
 
-# Format code
-.PHONY: format
-format: install
-	$(UV) run ruff format src/
-	@echo "Code formatting completed"
+test:  ## run tests
+	uv run pytest -v tests/
 
-# Clean build artifacts
-.PHONY: clean
-clean:
-	rm -rf build/
-	rm -rf dist/
-	rm -rf *.egg-info/
-	rm -rf __pycache__/
-	rm -rf .pytest_cache/
-	rm -rf .mypy_cache/
-	rm -rf .ruff_cache/
-	find . -type f -name "*.pyc" -delete
-	find . -type d -name "__pycache__" -delete
-	@echo "Cleaned build artifacts"
+test-cov:  ## run tests with coverage report
+	uv run pytest -v --cov=fix_headers_hook --cov-report=term-missing tests/
 
-# Run all checks
-.PHONY: all
-all: lint typecheck test
-	@echo "All checks completed"
+clean:  ## remove build artifacts and caches
+	rm -rf build/ dist/ *.egg-info/
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name .pytest_cache -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name .mypy_cache -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name .ruff_cache -exec rm -rf {} + 2>/dev/null || true
 
-# Install package in editable mode (development install)
-.PHONY: dev
-dev: install
-	$(UV) pip install -e .
-	@echo "Installed in development mode"
+all: lint typecheck test  ## run all checks
 
-# Self-test: run fix-headers on this project (dry-run)
-.PHONY: self-test
-self-test: install
-	$(UV) run python -m fix_headers . --dry-run
-	@echo "Self-test completed"
+hook-test:  ## run all pre-commit hooks on all files (dry-run)
+	uv run pre-commit run --all-files
+
+hook-install:  ## install pre-commit hooks into .git
+	uv run pre-commit install --install-hooks
+
+dev: install  ## install in editable mode
+	uv pip install -e .
+
+self-test:  ## run fix-headers on own source (dry-run)
+	uv run python -m fix_headers_hook src/ tests/ --dry-run
+
+self-test-apply:  ## run fix-headers on own source (apply)
+	uv run python -m fix_headers_hook src/ tests/
