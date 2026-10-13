@@ -1,4 +1,4 @@
-# tests/test_files.py
+# @path[tests/test_files.py]
 
 from pathlib import Path
 
@@ -42,6 +42,16 @@ def test_respects_gitignore(make_file):
     make_file(".gitignore", "generated.py\n")
     make_file("src/main.py", "")
     make_file("generated.py", "")
+
+    files = collect_target_files([Path(".")])
+    names = {f.name for f in files}
+    assert names == {"main.py"}
+
+
+def test_respects_gitignore_directory(make_file):
+    make_file(".gitignore", "tmp/\n")
+    make_file("src/main.py", "")
+    make_file("tmp/scripts/gen.py", "")
 
     files = collect_target_files([Path(".")])
     names = {f.name for f in files}
