@@ -44,7 +44,7 @@ apply to all supported files in the repository:
 ```yaml
 repos:
   - repo: https://github.com/D7x7z49/fix-headers-hook
-    rev: v0.1.0
+    rev: v0.3.0
     hooks:
       - id: fix-headers
 ```
@@ -54,7 +54,7 @@ limit to specific directories with a `files` pattern:
 ```yaml
 repos:
   - repo: https://github.com/D7x7z49/fix-headers-hook
-    rev: v0.1.0
+    rev: v0.3.0
     hooks:
       - id: fix-headers
         files: ^(src|tests|scripts)/
@@ -65,7 +65,7 @@ exclude generated or vendored paths:
 ```yaml
 repos:
   - repo: https://github.com/D7x7z49/fix-headers-hook
-    rev: v0.1.0
+    rev: v0.3.0
     hooks:
       - id: fix-headers
         exclude: ^(vendor|generated|\.venv)/
