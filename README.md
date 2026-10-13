@@ -1,44 +1,45 @@
-<!-- README.md -->
+<!-- @path[README.md] -->
 # fix-headers-hook
 
-A pre-commit hook that adds or updates file header comments with relative path information.
+a pre-commit hook that adds or updates file header comments with relative path information.
 
 ## Features
 
-- Adds or updates file headers automatically on `git commit`
-- Supports 50+ file types across 6 comment syntax families
-- Respects `.gitignore` patterns and common ignore directories
-- Preserves shebang lines
-- Dry-run mode for preview
-- Idempotent — safe to run repeatedly
+- adds or updates file headers automatically on `git commit`
+- supports 50+ file types across 6 comment syntax families
+- respects `.gitignore` patterns and common ignore directories
+- preserves shebang lines
+- dry-run mode for preview
+- idempotent — safe to run repeatedly
+- tracks renames and moves via a `@path[...]` marker
 
 ## Supported File Types
 
-Six comment syntax families across 50+ extensions.
+six comment syntax families across 50+ extensions.
 
-Hash-style (`# {rel}`):
+hash-style (`# @path[{rel}]`):
 `.py` `.sh` `.bash` `.zsh` `.yaml` `.yml` `.toml` `.ini` `.cfg` `.rb` `.php` `.pl` `.r` `.tf` `.hcl` `.env` `Makefile` `Dockerfile` and more.
 
-Slash-style (`// {rel}`):
+slash-style (`// @path[{rel}]`):
 `.js` `.ts` `.jsx` `.tsx` `.go` `.rs` `.swift` `.cs` `.java` `.kt` `.scala` `.c` `.cpp` `.h` `.dart` `.proto` and more.
 
-Dash-style (`-- {rel}`):
+dash-style (`-- @path[{rel}]`):
 `.sql` `.lua` `.hs` `.elm` `.vhd` `.vhdl` `.ada` and more.
 
-HTML-style (`<!-- {rel} -->`):
+HTML-style (`<!-- @path[{rel}] -->`):
 `.html` `.xml` `.svg` `.md` `.markdown` and more.
 
-Block-style (`/* {rel} */`):
+block-style (`/* @path[{rel}] */`):
 `.css` `.scss` `.sass` `.less` and more.
 
-Semicolon-style (`; {rel}`):
+semicolon-style (`; @path[{rel}]`):
 `.asm` `.s` `.nasm` and more.
 
 ## Installation
 
-Add to your `.pre-commit-config.yaml`, then run `pre-commit install`.
+add to your `.pre-commit-config.yaml`, then run `pre-commit install`.
 
-Apply to all supported files in the repository:
+apply to all supported files in the repository:
 
 ```yaml
 repos:
@@ -48,7 +49,7 @@ repos:
       - id: fix-headers
 ```
 
-Limit to specific directories with a `files` pattern:
+limit to specific directories with a `files` pattern:
 
 ```yaml
 repos:
@@ -59,7 +60,7 @@ repos:
         files: ^(src|tests|scripts)/
 ```
 
-Exclude generated or vendored paths:
+exclude generated or vendored paths:
 
 ```yaml
 repos:
@@ -72,23 +73,23 @@ repos:
 
 ## Safety and Scoping
 
-- The hook only touches files whose extensions it recognizes. Unsupported files are silently skipped.
-- Directories in `.gitignore` and common ignore paths (`.venv`, `node_modules`, `build`, `dist` ...) are never touched.
-- Shebang lines are preserved.
-- Run `pre-commit run fix-headers --all-files` to preview what would change before committing.
-- If unsure, start with a narrow `files` pattern and widen gradually.
+- the hook only touches files whose extensions it recognizes. unsupported files are silently skipped.
+- directories in `.gitignore` and common ignore paths (`.venv`, `node_modules`, `build`, `dist` ...) are never touched.
+- shebang lines are preserved.
+- run `pre-commit run fix-headers --all-files` to preview what would change before committing.
+- if unsure, start with a narrow `files` pattern and widen gradually.
 
 ## Usage
 
-Once installed, the hook runs automatically on staged files during `git commit`.
+once installed, the hook runs automatically on staged files during `git commit`.
 
-To preview changes without committing:
+to preview changes without committing:
 
 ```bash
 pre-commit run fix-headers --all-files
 ```
 
-To run the tool directly (outside pre-commit):
+to run the tool directly (outside pre-commit):
 
 ```bash
 fix-headers src/ --dry-run    # preview
@@ -97,18 +98,37 @@ fix-headers src/              # apply
 
 ## How It Works
 
-1. For each supported file, the tool computes its relative path from the project root
-2. If the file has a shebang line, the header is inserted after it
-3. If the file already has the correct header, it is skipped
-4. Otherwise, the header is added or updated
+1. for each supported file, the tool computes its relative path from the project root
+2. if the file has a shebang line, the header is inserted after it
+3. a header is found by its `@path[...]` marker, so a moved file is rewritten in place
+4. legacy headers without the marker are migrated on the first run
+5. otherwise, the header is added
 
-Example: a file at `src/utils/helper.py` gets the header `# src/utils/helper.py`.
+example: a file at `src/utils/helper.py` gets the header `# @path[src/utils/helper.py]`.
+
+## Header Format
+
+headers wrap the relative path in a `@path[...]` marker:
+
+```text
+# @path[src/utils/helper.py]
+<!-- @path[README.md] -->
+```
+
+the marker gives the path an explicit start and end. the tool can then find a
+header by shape instead of by value, so a renamed or moved file has its header
+replaced rather than duplicated.
+
+before v0.3.0 headers were bare paths, for example `# src/utils/helper.py`.
+on the first run the hook migrates these in place. a bare first-line comment is
+only treated as a header when it is a single token ending in a supported file
+suffix, so ordinary comments are left alone.
 
 ## Development
 
-See `make help` for all available targets.
+see `make help` for all available targets.
 
-Quick start:
+quick start:
 
 ```bash
 make install          # sync dependencies
@@ -117,8 +137,8 @@ make hook-test        # run all pre-commit hooks on all files
 make self-test        # dry-run fix-headers on own source
 ```
 
-Development dependencies are declared in `pyproject.toml` under the `dev` extras group. Python version is pinned in `.python-version`.
+development dependencies are declared in `pyproject.toml` under the `dev` extras group. Python version is pinned in `.python-version`.
 
 ## License
 
-MIT License — see `LICENSE`.
+MIT license — see `LICENSE`.

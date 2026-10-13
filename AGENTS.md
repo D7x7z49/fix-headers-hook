@@ -1,4 +1,4 @@
-<!-- AGENTS.md -->
+<!-- @path[AGENTS.md] -->
 <!-- Project conventions and guidelines for fix-headers-hook -->
 
 PROJECT IDENTITY

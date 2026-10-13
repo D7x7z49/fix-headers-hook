@@ -1,4 +1,4 @@
-# tests/test_root.py
+# @path[tests/test_root.py]
 
 import os
 import shutil

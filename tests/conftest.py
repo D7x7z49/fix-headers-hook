@@ -1,4 +1,4 @@
-# tests/conftest.py
+# @path[tests/conftest.py]
 
 import os
 import shutil
@@ -12,13 +12,11 @@ from fix_headers_hook.root import get_project_root
 
 @pytest.fixture(autouse=True)
 def _clear_root_cache() -> None:
-    """Clear the project root cache before each test."""
     get_project_root.cache_clear()
 
 
 @pytest.fixture
 def tmp_git_repo() -> Path:
-    """Create a temporary git repository and chdir into it."""
     old_cwd = Path.cwd()
     tmpdir = Path(tempfile.mkdtemp())
     os.chdir(tmpdir)
@@ -34,8 +32,7 @@ def tmp_git_repo() -> Path:
 
 @pytest.fixture
 def make_file(tmp_git_repo: Path):
-    """Factory to create files in the temp repo."""
-
+    # factory to create files in the temp repo
     def _make(path: str, content: str) -> Path:
         full = tmp_git_repo / path
         full.parent.mkdir(parents=True, exist_ok=True)

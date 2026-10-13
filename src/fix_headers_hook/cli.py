@@ -1,5 +1,4 @@
-# src/fix_headers_hook/cli.py
-# src/fix_headers/cli.py
+# @path[src/fix_headers_hook/cli.py]
 
 import argparse
 import sys

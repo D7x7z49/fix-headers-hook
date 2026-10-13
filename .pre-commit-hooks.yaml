@@ -1,4 +1,4 @@
-# .pre-commit-hooks.yaml
+# @path[.pre-commit-hooks.yaml]
 - id: fix-headers
   name: Fix file headers
   description: Adds/updates file headers with relative path comments
